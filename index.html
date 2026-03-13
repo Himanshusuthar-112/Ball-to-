@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>3D Touch Game</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+let renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Player
+let player = new THREE.Mesh(
+  new THREE.BoxGeometry(1,1,1),
+  new THREE.MeshBasicMaterial({color: 0x00ff00})
+);
+player.position.y = -4;
+scene.add(player);
+
+// Ball
+let ball = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5, 32, 32),
+  new THREE.MeshBasicMaterial({color: 0xff0000})
+);
+scene.add(ball);
+
+camera.position.z = 10;
+
+function resetBall(){
+  ball.position.x = (Math.random() * 8) - 4;
+  ball.position.y = 5;
+}
+resetBall();
+
+// Touch Control
+document.addEventListener("touchstart", function(event){
+  let touchX = event.touches[0].clientX;
+
+  if(touchX < window.innerWidth / 2){
+    player.position.x -= 1;
+  } else {
+    player.position.x += 1;
+  }
+});
+
+// PC keyboard control also works
+document.addEventListener("keydown", function(event){
+  if(event.key === "ArrowLeft") player.position.x -= 0.5;
+  if(event.key === "ArrowRight") player.position.x += 0.5;
+});
+
+// Game Loop
+function animate(){
+  requestAnimationFrame(animate);
+
+  ball.position.y -= 0.07;
+
+  // Collision
+  if(Math.abs(ball.position.x - player.position.x) < 1 &&
+     Math.abs(ball.position.y - player.position.y) < 1){
+       alert("You caught it!");
+       resetBall();
+  }
+
+  if(ball.position.y < -6) resetBall();
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+</script>
+</body>
+</html>
